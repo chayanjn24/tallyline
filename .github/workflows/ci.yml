@@ -19,3 +19,22 @@ jobs:
       - run: pytest
       - name: JavaScript syntax
         run: for f in web/js/*.js web/js/*/*.js; do node --check "$f"; done
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t tallyline .
+      - name: Image size
+        run: docker image ls tallyline --format '{{.Size}}'
+      - name: Start the container and check /healthz and the API
+        run: |
+          docker run -d --name tl -p 8000:8000 tallyline
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/healthz && break; sleep 2; done
+          curl -fsS http://127.0.0.1:8000/healthz | grep -q '"ok":true'
+          curl -fsS http://127.0.0.1:8000/api/meta
+          curl -fsS http://127.0.0.1:8000/ | grep -qi '<html'
+      - name: Container logs
+        if: always()
+        run: docker logs tl || true
