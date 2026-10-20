@@ -39,7 +39,7 @@ browser ── GET /api/* (JSON) ──► FastAPI (tallyline/api.py)
 | `/api/summary`, 1 day | ~25 ms |
 | `/api/breakdown`, any level, 1 day | 7–30 ms |
 | `/api/summary` with an app filter, 31 days | ~120 ms |
-| `/api/anomalies`, 1 week (4 levels, 4-week baseline) | ~0.5 s, then cached for the hour |
+| `/api/anomalies`, 1 week (4 levels, 4-week baseline) | ~0.5 s, then cached for the hour (today's scan and the 30-day scorecard are pre-computed each hour) |
 | Cold start (generate 100 days) | ~3 s |
 
 ## Front end

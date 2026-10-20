@@ -52,7 +52,7 @@ flowchart LR
 - **SQL that does the analysis:** the detector is two statements in [sql/anomalies.sql](sql/anomalies.sql): windowed `median`/`mad` over the same hour of the week, then the *gaps and islands* pattern to merge consecutive hours into incidents.
 - **API:** FastAPI, all `GET`, with validated parameters bound into SQL (never pasted in). A typical 31-day query takes 5–30 ms.
 - **Front end:** no framework and no build step. About 30 small ES modules, Chart.js for the big charts, hand-drawn SVG for sparklines. Every rate (eCPM, fill, win rate) is computed in one place from additive sums, so totals are never an average of averages.
-- **Quality:** 30 tests (determinism, funnel invariants, every breakdown reconciling to the total, comparison windows, bad input, detector precision and recall), Ruff, and GitHub Actions CI.
+- **Quality:** 31 tests (determinism, funnel invariants, every breakdown reconciling to the total, comparison windows, bad input, detector precision and recall), Ruff, and GitHub Actions CI.
 
 More detail: [architecture](docs/architecture.md) · [metrics and definitions](docs/metrics.md) · [data model and generator](docs/data-model.md) · [decisions](docs/decisions.md).
 

@@ -44,6 +44,13 @@ def test_alerts_explain_themselves(client):
             assert a["cause"]["id"] in ids  # a knock-on alert always points at an alert that exists
 
 
+def test_comparison_window_does_not_change_alerts(client):
+    week = {"start": "2026-10-12", "end": "2026-10-18"}
+    a = client.get("/api/anomalies", params=week).json()
+    b = client.get("/api/anomalies", params={**week, "pstart": "2026-09-01", "pend": "2026-09-07"}).json()
+    assert a["alerts"] == b["alerts"]
+
+
 def test_live_hour_is_never_scanned(client):
     j = client.get("/api/anomalies", params={"start": "2026-10-20", "end": "2026-10-20"}).json()
     assert j["to"] == "2026-10-20 17"

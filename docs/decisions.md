@@ -18,3 +18,4 @@ A running log of product and technical decisions. Newest last. Dates are absolut
 | D12 | 2026-10-20 | A one-hour incident needs \|z\| ≥ 7; longer incidents \|z\| ≥ 4 | Single odd hours were the remaining false alarms |
 | D13 | 2026-10-20 | Front-end files are served with `Cache-Control: no-cache` (ETag revalidation) | No build step means no hashed file names; without this, a deploy could leave stale JS in browsers |
 | D14 | 2026-10-20 | Saved views live in the viewer's browser (localStorage); the report is a print-styled page of the same view | No accounts in a portfolio demo; a shared link already carries the whole view in its URL |
+| D15 | 2026-10-21 | The server pre-computes today's anomaly scan and the 30-day scorecard in a background thread, at start-up and each new hour; the anomaly cache key is the range + filters (not the raw query string) | On Render's free CPU a scan takes ~9 s, and the Overview asks for today's alerts on every first load |

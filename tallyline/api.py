@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 import time
 from contextlib import asynccontextmanager, closing
+from datetime import timedelta
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
@@ -40,12 +41,54 @@ class TTLCache:
 
 def create_app(wh: Warehouse | None = None) -> FastAPI:
     state = {}
+    cache = TTLCache()
+    stop = threading.Event()
+
+    def anomaly_key(sc: Scope) -> tuple:
+        # detection reads only the range and the filters, not the comparison window
+        return (
+            "anomalies",
+            str(sc.start),
+            str(sc.end),
+            tuple(sorted((k, tuple(v)) for k, v in sc.filters.items())),
+            sc.live_ts,
+        )
+
+    def cached_alerts(cur, sc: Scope) -> list[dict]:
+        wh = state["wh"]
+        return cache.get(anomaly_key(sc), 3600, lambda: anomalies.detect(cur, sc, state["dims"], wh.first_ts()))
+
+    def cached_scorecard(cur, sc: Scope) -> dict:
+        wh = state["wh"]
+        key = ("scorecard", str(sc.start), str(sc.end), sc.live_ts)
+        return cache.get(key, 3600, lambda: anomalies.scorecard(cur, sc, state["dims"], wh.first_ts()))
+
+    def warm() -> None:
+        """Scan the views every visitor opens first (today's alerts, the 30-day scorecard) once per hour,
+        so a slow machine (Render's free plan takes ~9 s per scan) never makes a visitor wait for them."""
+        while not stop.is_set():
+            wh = state["wh"]
+            try:
+                live_ts, frac = wh.live()
+                d = live_ts.date()
+                with closing(wh.cursor()) as cur:
+                    cached_alerts(cur, Scope(d, d, d - timedelta(days=1), d - timedelta(days=1)).bind(live_ts))
+                    start = d - timedelta(days=29)
+                    cached_scorecard(
+                        cur, Scope(start, d, start - timedelta(days=30), start - timedelta(days=1)).bind(live_ts)
+                    )
+            except Exception:  # warming is an optimisation: a failure here must never take the app down
+                pass
+            stop.wait((1 - frac) * 3600 + 5)  # until just after the next hour starts
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         state["wh"] = wh or Warehouse()
         state["dims"] = Dims(state["wh"].cat)
+        if config.WARM:
+            threading.Thread(target=warm, name="warm-anomalies", daemon=True).start()
         yield
+        stop.set()
         if wh is None:
             state["wh"].close()
 
@@ -65,8 +108,6 @@ def create_app(wh: Warehouse | None = None) -> FastAPI:
         if not request.url.path.startswith("/api/"):
             response.headers.setdefault("Cache-Control", "no-cache")
         return response
-
-    cache = TTLCache()
 
     @app.exception_handler(ScopeError)
     async def bad_scope(_: Request, e: ScopeError):
@@ -142,8 +183,7 @@ def create_app(wh: Warehouse | None = None) -> FastAPI:
         with closing(wh.cursor()) as cur:
             sc = scope_of(request, cur)
             # results only use completed hours, so they hold until the clock enters a new hour
-            key = ("anomalies", str(request.query_params), sc.live_ts)
-            alerts = cache.get(key, 3600, lambda: anomalies.detect(cur, sc, state["dims"], wh.first_ts()))
+            alerts = cached_alerts(cur, sc)
         s0, s1 = sc.cur
         return {
             "from": queries.label(s0),
@@ -155,11 +195,8 @@ def create_app(wh: Warehouse | None = None) -> FastAPI:
 
     @app.get("/api/anomalies/scorecard")
     def scorecard(request: Request):
-        wh = state["wh"]
-        with closing(wh.cursor()) as cur:
-            sc = scope_of(request, cur)
-            key = ("scorecard", str(sc.start), str(sc.end), sc.live_ts)
-            return cache.get(key, 3600, lambda: anomalies.scorecard(cur, sc, state["dims"], wh.first_ts()))
+        with closing(state["wh"].cursor()) as cur:
+            return cached_scorecard(cur, scope_of(request, cur))
 
     # the front end: index.html at /, report.html at /report.html, assets under /css and /js
     app.mount("/", StaticFiles(directory=config.WEB_DIR, html=True), name="web")

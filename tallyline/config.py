@@ -14,6 +14,7 @@ MEMORY_LIMIT = os.environ.get("TALLYLINE_MEMORY", "384MB")  # fits a 512 MB cont
 THREADS = int(os.environ.get("TALLYLINE_THREADS", "2"))
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "8000"))
+WARM = os.environ.get("TALLYLINE_WARM", "1") == "1"  # pre-compute the anomaly scans every visitor opens
 
 MAX_RANGE_DAYS = 31
 MAX_FILTER_VALUES = 50
