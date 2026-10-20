@@ -4,6 +4,8 @@
 
 Every number is synthetic. A seeded generator simulates twelve buyers, ten publishers and about 150 deals hour by hour, and plants incidents (outages, traffic drops, bot-like spikes, price cuts) for the detector to find. Nothing here comes from a real company.
 
+**Live demo: [tallyline.onrender.com](https://tallyline.onrender.com)** (free hosting: the first visit after a quiet spell takes 30–60 s to wake up).
+
 ![Overview, dark theme](docs/img/overview-dark.png)
 
 ## What it does
@@ -72,7 +74,7 @@ Settings are environment variables: `TALLYLINE_SEED` (a different seed gives a d
 
 ## Deploy
 
-The repo includes a [render.yaml](render.yaml) blueprint for Render's free plan. The steps are in [docs/deploy-render.md](docs/deploy-render.md).
+It runs at [tallyline.onrender.com](https://tallyline.onrender.com). The repo includes a [render.yaml](render.yaml) blueprint for Render's free plan, and every push to `main` redeploys. The steps are in [docs/deploy-render.md](docs/deploy-render.md).
 
 ## Project layout
 
