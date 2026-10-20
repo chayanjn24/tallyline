@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+data/
+*.duckdb
+*.duckdb.wal
+.DS_Store
+.playwright-mcp/
+
+# local working notes for AI coding sessions (not part of the published project)
+CLAUDE.md
+docs/HANDOFF.md

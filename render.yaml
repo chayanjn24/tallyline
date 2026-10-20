@@ -1,0 +1,13 @@
+# Render blueprint: New → Blueprint → pick this repo. Render builds the Dockerfile and sets $PORT.
+services:
+  - type: web
+    name: tallyline
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: TALLYLINE_SEED
+        value: "7"
+      - key: TALLYLINE_MEMORY
+        value: 384MB

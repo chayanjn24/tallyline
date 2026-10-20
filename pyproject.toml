@@ -1,0 +1,29 @@
+[project]
+name = "tallyline"
+version = "1.0.0"
+description = "Analytics for a synthetic programmatic ad exchange: DuckDB + FastAPI + a framework-free front end, with anomaly detection."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "duckdb>=1.1,<2",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E731"]

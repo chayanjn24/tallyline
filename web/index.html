@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Tallyline: an analytics workspace for a (synthetic) programmatic ad exchange, with anomaly detection and root-cause hints.">
+<title>Tallyline</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>
+  // apply a saved theme before first paint, so there is no flash
+  try { const t = JSON.parse(localStorage.getItem('tl.theme')); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/pages.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script type="module" src="/js/main.js"></script>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-brand">
+    <button class="icon-btn" id="menuBtn" aria-label="Toggle menu ([)" aria-controls="nav" aria-expanded="true"></button>
+    <a class="wordmark" href="#v=overview" aria-label="Tallyline, overview"><span class="mark" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 12V7M6.5 12V4M10 12V8.5M13.5 12V5.5"/></svg></span><span>Tallyline</span></a>
+  </div>
+  <div class="hdr-range">
+    <div class="seg" id="presets" aria-label="Date range"></div>
+  </div>
+  <div class="custom" id="custom" hidden role="dialog" aria-label="Custom range">
+    <span class="eyebrow">Custom range · max 31 days</span>
+    <div class="row"><input type="date" id="cStart" aria-label="Start date"><span class="to">→</span><input type="date" id="cEnd" aria-label="End date"></div>
+    <div class="row"><span class="muted" id="cHint"></span><button class="btn sm primary" id="cApply">Apply</button></div>
+  </div>
+  <div class="custom savepop" id="savePop" hidden role="dialog" aria-label="Save view">
+    <span class="eyebrow">Save this view</span>
+    <input type="text" id="sName" maxlength="60" aria-label="View name" autocomplete="off">
+    <div class="muted" id="sDesc"></div>
+    <div class="row"><span class="muted">Saved in this browser</span><button class="btn sm primary" id="sSave">Save</button></div>
+  </div>
+  <div class="hdr-tools">
+    <button class="icon-btn" id="refreshBtn" aria-label="Reload data (r)" title="Reload data (r)"></button>
+    <button class="cmdk-btn hide-sm" id="cmdkBtn" aria-label="Search and commands"></button>
+    <button class="icon-btn" id="cmdkIcon" aria-label="Search and commands" hidden></button>
+    <button class="icon-btn" id="saveBtn" aria-label="Save this view" title="Save this view"></button>
+    <a class="hdr-link" id="reportLink" href="/report.html" target="_blank" rel="noopener" title="A printable one-page report of this view"></a>
+    <button class="icon-btn" id="themeBtn"></button>
+    <button class="icon-btn" id="bellBtn" aria-label="Alerts (a)" aria-controls="drawer" aria-expanded="false"></button>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="nav" id="nav" aria-label="Pages"></nav>
+  <div class="nav-scrim" id="navScrim"></div>
+  <main class="main" id="main" tabindex="-1">
+    <section class="pagehead" id="pagehead"></section>
+    <section class="fbar" id="fbar" aria-label="Filters"></section>
+    <div class="view" id="view"></div>
+  </main>
+</div>
+
+<div class="scrim" id="drawerScrim"></div>
+<aside class="drawer" id="drawer" aria-label="Alerts" aria-hidden="true"></aside>
+<dialog class="cmdk" id="cmdk" aria-label="Command search"></dialog>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>

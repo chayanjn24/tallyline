@@ -1,0 +1,5 @@
+# runtime (pinned; see pyproject.toml for ranges)
+duckdb==1.5.6
+fastapi==0.155.0
+uvicorn[standard]==0.54.0
+numpy==2.5.4
